@@ -1,12 +1,13 @@
 /* My Search · "Kit Black Friday" como opción elegible dentro del selector de packs
    de las fichas del Localizador y la Tarjeta. Viene elegido de entrada; con él elegido,
-   "Agregar al carrito" agrega el kit (producto 383428345) y lleva al carrito.
+   "Agregar al carrito" carga los productos por separado (3 localizadores, 1 tarjeta y 2 Key Tag negros)
+   y lleva al carrito. El precio del kit sale de dos descuentos: el 3x2 de Wigy en localizadores y la
+   promoción de Tiendanube "Black Friday kit" ($39.510 fijos sobre Tarjeta y Key Tag, carrito desde $173.500).
    Se muestra solo del 25/11/2026 al 01/12/2026 00:00 (hora Argentina).
    Para verlo fuera de fecha: ?msbf=1 en la URL de la ficha (queda guardado en ese navegador; ?msbf=0 lo apaga). */
 !function () {
   var d = document, H = d.documentElement, IDS = ['334471967', '375874883'];
-  var KIT = '383428345';
-  var LOC = { Android: 1487369397, iOS: 1487369385 }, TARJ_V = 1624006946, KT = { Azul: 1498900173, Negro: 1498900176 };
+  var P_LOC = '334471967', P_TARJ = '375874883', P_KT = '334472124';
   var DESDE = Date.parse('2026-11-25T00:00:00-03:00'), HASTA = Date.parse('2026-12-01T00:00:00-03:00');
   var q = location.search.match(/[?&]msbf=([01])/);
   try { if (q) localStorage.setItem('msbf', q[1]); } catch (e) {}
@@ -21,7 +22,7 @@
   var IMG_TARJ = 'https://wigy.nyc3.digitaloceanspaces.com/images/widgets/store_1301_QKNwJfJZctGhiyu5JMS1_1793132207.webp';
   var IMG_KT = 'https://d1a9qnv764bsoo.cloudfront.net/stores/007/481/104/rte/ms-th-keytag.jpg';
   var R = '#E3262F', R2 = '#FF5A5F';
-  var estado = { on: true, os: null, kt: 'Negro' };
+  var estado = { on: true, os: null };
 
   var S = '#msbf.mbf';
   var css = '' +
@@ -49,7 +50,7 @@
     S + ' .mbf-r u{display:block;text-decoration:none;margin:4px 0 5px;color:' + R2 + ';font:700 11.5px Inter,sans-serif;line-height:1.25}' +
     S + ' .mbf-r em{display:inline-block;font:800 11px Inter,sans-serif;font-style:normal;background:' + R + ';color:#fff;border-radius:99px;padding:3px 8px}' +
     S + ' .mbf-op{display:none;border-top:1px solid #24262b;padding:9px 12px 11px 41px}' +
-    S + '.on .mbf-op{display:block}' +
+    (esTarjeta ? S + '.on .mbf-op{display:block}' : '') +
     S + ' .mbf-op div{display:flex;align-items:center;gap:6px;margin:3px 0}' +
     S + ' .mbf-op label{flex:none;width:62px;font:600 11.5px Inter,sans-serif;color:#b9bdc6}' +
     S + ' .mbf-op button{font:700 12px Inter,sans-serif;color:#fff;background:#17181b;border:1px solid #3a3d44;border-radius:99px;padding:5px 12px;cursor:pointer;line-height:1}' +
@@ -74,17 +75,20 @@
     '<u>3 cuotas sin interés<br>de $44.680</u><em>Ahorrás $88.964 · 42%</em>' +
     '</div></div>' +
     '<div class="mbf-op">' +
-    (esTarjeta ? '<div><label>Celular</label><button type="button" data-os="iOS">iPhone</button><button type="button" data-os="Android">Android</button></div>' : '') +
-    '<div><label>Key Tag</label><button type="button" data-kt="Negro">Negro</button><button type="button" data-kt="Azul">Azul</button></div>' +
-    (esTarjeta ? '<p>Elegí tu celular para los localizadores</p>' : '') +
+    '<div><label>Celular</label><button type="button" data-os="iOS">iPhone</button><button type="button" data-os="Android">Android</button></div>' +
+    '<p>Elegí tu celular para los localizadores</p>' +
     '</div></div>';
 
   var st = d.createElement('style'); st.id = 'msbf-css'; st.textContent = css; d.head.appendChild(st);
 
-  function osActual() {
-    if (estado.os) return estado.os;
-    var s = d.querySelector('.wigy-widget-bundle-cantidad select');
-    return s && s.value === 'iOS' ? 'iOS' : 'Android';
+  // Sistema de cada uno de los 3 localizadores. En la Tarjeta, el elegido en el kit.
+  // En el Localizador, el del selector "¿Qué celular tenés?" (o uno por uno).
+  function sistemas() {
+    if (esTarjeta) return [estado.os, estado.os, estado.os];
+    var v = [].map.call(d.querySelectorAll('.wigy-widget-bundle-cantidad select'), function (s) { return s.value === 'iOS' ? 'iOS' : 'Android'; });
+    if (!v.length) v = ['Android'];
+    while (v.length < 3) v.push(v[0]);
+    return v.slice(0, 3);
   }
   function pintar() {
     var c = d.getElementById('msbf');
@@ -93,7 +97,13 @@
     c.classList.toggle('on', estado.on);
     c.setAttribute('aria-checked', estado.on ? 'true' : 'false');
     [].forEach.call(c.querySelectorAll('[data-os]'), function (b) { b.classList.toggle('on', b.getAttribute('data-os') === estado.os); });
-    [].forEach.call(c.querySelectorAll('[data-kt]'), function (b) { b.classList.toggle('on', b.getAttribute('data-kt') === estado.kt); });
+  }
+  function sumar(prod, opcion, cant) {
+    var fd = new FormData();
+    fd.append('add_to_cart', prod);
+    if (opcion) fd.append('variation[0]', opcion);
+    fd.append('quantity', String(cant));
+    return fetch('/comprar/', { method: 'POST', body: fd, credentials: 'same-origin' }).catch(function () {});
   }
   function agregarKit(btn) {
     var c = d.getElementById('msbf');
@@ -101,28 +111,22 @@
       if (c) { c.classList.add('falta'); c.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
       return;
     }
-    var os = osActual();
-    var sel = [
-      { kit_component_id: 69475, variant_id: LOC[os], quantity: 3 },
-      { kit_component_id: 69476, variant_id: TARJ_V, quantity: 1 },
-      { kit_component_id: 69477, variant_id: KT[estado.kt], quantity: 2 }
-    ];
     if (btn) { btn.disabled = true; btn.style.opacity = '.7'; }
-    var f = d.createElement('form');
-    f.method = 'post'; f.action = '/comprar/'; f.style.display = 'none';
-    [['add_to_cart', KIT], ['kit_selections', JSON.stringify(sel)], ['quantity', '1']].forEach(function (p) {
-      var i = d.createElement('input'); i.type = 'hidden'; i.name = p[0]; i.value = p[1]; f.appendChild(i);
-    });
-    d.body.appendChild(f); f.submit();
+    var cuenta = {};
+    sistemas().forEach(function (os) { cuenta[os] = (cuenta[os] || 0) + 1; });
+    var pasos = Object.keys(cuenta).map(function (os) { return [P_LOC, os, cuenta[os]]; })
+      .concat([[P_TARJ, null, 1], [P_KT, 'Negro', 2]]);
+    var p = Promise.resolve();
+    pasos.forEach(function (x) { p = p.then(function () { return sumar(x[0], x[1], x[2]); }); });
+    p.then(function () { location.href = '/comprar/'; });
   }
 
   d.addEventListener('click', function (e) {
     var t = e.target;
     var c = t.closest && t.closest('#msbf');
     if (c) {
-      var o = t.closest('[data-os]'), k = t.closest('[data-kt]');
+      var o = t.closest('[data-os]');
       if (o) { estado.os = o.getAttribute('data-os'); c.classList.remove('falta'); }
-      if (k) estado.kt = k.getAttribute('data-kt');
       estado.on = true; pintar(); return;
     }
     if (estado.on && t.closest && t.closest('.wigy-widget-bundle-cantidad .wigy-bundle-cantidad-boton')) {
