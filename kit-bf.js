@@ -1,10 +1,10 @@
 /* My Search · Pestaña "Kit Black Friday" en las fichas del Localizador y la Tarjeta.
-   Se muestra sola del 27/11/2026 00:00 al 01/12/2026 00:00 (hora Argentina).
+   Se muestra sola desde el 25/11/2026 hasta el 01/12/2026 00:00 (hora Argentina).
    Para verla antes: agregar ?msbf=1 a la URL de la ficha (queda guardado en ese navegador; ?msbf=0 lo apaga). */
 !function () {
   var d = document, IDS = ['334471967', '375874883'];
   var URL_KIT = '/productos/kit-black-friday/';
-  var DESDE = Date.parse('2026-11-27T00:00:00-03:00'), HASTA = Date.parse('2026-12-01T00:00:00-03:00');
+  var DESDE = Date.parse('2026-11-25T00:00:00-03:00'), HASTA = Date.parse('2026-12-01T00:00:00-03:00');
   var q = location.search.match(/[?&]msbf=([01])/);
   try { if (q) localStorage.setItem('msbf', q[1]); } catch (e) {}
   var forzado = false;
@@ -48,8 +48,8 @@
     '<small>Solo válido hasta el 30/11</small>' +
     '<div class="msbf-th"><i style="background-image:url(' + LOC3 + ')"></i><b>+</b><i style="background-image:url(' + TARJ + ')"></i><b>+</b><i><span style="left:-6px"></span><span style="left:10px"></span></i></div>' +
     '</div><div class="msbf-r">' +
-    '<small>por transferencia</small><strong>$121.410</strong><s>$134.900 con tarjeta</s>' +
-    '<u>3 cuotas sin interés<br>de $44.967</u><em>Ahorrás $88.190 · 42%</em><ins>Ver kit ›</ins>' +
+    '<small>por transferencia</small><strong>$120.636</strong><s>$134.040 con tarjeta</s>' +
+    '<u>3 cuotas sin interés<br>de $44.680</u><em>Ahorrás $88.964 · 42%</em><ins>Ver kit ›</ins>' +
     '</div></div></a>';
 
   var st = d.createElement('style'); st.id = 'msbf-css'; st.textContent = css; d.head.appendChild(st);
