@@ -57,7 +57,7 @@
     S + ' .mbf-op p{display:none;margin:4px 0 0;font:700 11.5px Inter,sans-serif;color:' + R2 + '}' +
     S + '.falta .mbf-op p{display:block}' +
     S + '.falta [data-os]{border-color:' + R2 + '}' +
-    '@media (max-width:374px){' + S + ' .mbf-band em:last-child{display:none}' + S + ' .mbf-in{gap:7px;padding:11px 9px 12px}' + S + ' .mbf-l p{font-size:13px}' + S + ' .mbf-l small{font-size:11px}' + S + ' .mbf-th i{width:30px;height:28px}' + S + ' .mbf-th i span{width:28px;height:28px}' + S + ' .mbf-r strong{font-size:18px}' + S + ' .mbf-op{padding-left:12px}}' +
+    '@media (max-width:374px){' + S + ' .mbf-band em:last-child{display:none}' + S + ' .mbf-in{gap:7px;padding:11px 9px 12px}' + S + ' .mbf-l p{font-size:13px}' + S + ' .mbf-l small{font-size:11px}' + S + ' .mbf-th{display:none}' + S + ' .mbf-l small{margin-bottom:0}' + S + ' .mbf-r strong{font-size:18px}' + S + ' .mbf-op{padding-left:12px}}' +
     'html.msbf-on .wigy-bundle-cantidad-producto.wigy-selected{border-color:#ddd!important}' +
     'html.msbf-on .wigy-bundle-cantidad-radio.wigy-checked{border-color:#ccc!important}' +
     'html.msbf-on .wigy-bundle-cantidad-radio-dot{display:none!important}' +
