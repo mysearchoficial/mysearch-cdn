@@ -220,7 +220,7 @@
     '.ms-meta .mm-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:' + LIMA + ';transition:width .3s}' +
     '.ms-meta .mm-dot{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#eeeee9;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}' +
     '.ms-meta .mm-dot.ok{background:' + LIMA + '}' +
-    '.ms-meta .mm-lab{position:relative;height:44px;margin:6px 8px 0 0;font-size:10px;line-height:1.3}' +
+    '.ms-meta .mm-lab{position:relative;height:56px;margin:6px 8px 0 0;font-size:10px;line-height:1.3}' +
     '.ms-meta .mm-lab span{position:absolute;top:0;width:96px;text-align:right;transform:translateX(-100%)}' +
     // La 2.ª etiqueta va angosta para que entre entre las dos marcas aun en celular (el tramo es ~21% del ancho).
     '.ms-meta .mm-lab span:last-child{width:60px}' +
