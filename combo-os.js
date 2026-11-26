@@ -44,7 +44,7 @@
      oss = sistema de cada localizador ("iPhone"/"Android"/null). */
   window.msoHTML = function (n, oss, a, u, mix) {
     var todos = oss.every(function (x) { return x && x === oss[0]; }) ? oss[0] : null;
-    var h = '<p class="h"><span class="t1">¿Qué celular tenés?</span><span class="t2">¿Para qué celular es cada uno?</span></p>' +
+    var h = '<p class="h"><span class="t1">¿Para qué tipo de celular buscás el localizador?</span><span class="t2">¿Para qué celular es cada uno?</span></p>' +
       '<div class="seg">' + OS.map(function (o) {
         return '<span role="button" tabindex="0" ' + a + '="' + o + '" class="' + (todos === o ? 'on' : '') + '"><img src="' + IMG[o] + '" alt="">' + o + '</span>';
       }).join('') + '</div>';
