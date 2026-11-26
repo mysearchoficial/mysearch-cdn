@@ -95,7 +95,8 @@
   }
   d.addEventListener('click', function (e) {
     if (e.target.closest && e.target.closest('.wigy-bundle-cantidad,#msbf')) { setTimeout(pintar, 120); setTimeout(pintar, 500); }
-  });
+  }, true);
+  setInterval(pintar, 700);
   // Si nadie eligió todavía, arranca en Android (como hasta ahora).
   function iniciar() {
     if (!d.querySelector('#msfx-os [data-msfx-os].on')) {

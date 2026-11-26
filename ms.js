@@ -181,7 +181,8 @@
   }
   d.addEventListener('click', function (e) {
     if (e.target.closest && e.target.closest('.wigy-bundle-cantidad,#msbf')) { setTimeout(pintar, 120); setTimeout(pintar, 500); }
-  });
+  }, true);
+  setInterval(pintar, 700);
   // Si nadie eligió todavía, arranca en Android (como hasta ahora).
   function iniciar() {
     if (!d.querySelector('#msfx-os [data-msfx-os].on')) {
@@ -415,7 +416,9 @@
     e.preventDefault();
     var btn = principal(); if (btn) btn.click();
   });
-  d.addEventListener('click', function () { setTimeout(pintar, 150); setTimeout(pintar, 600); });
+  // En captura: Wigy corta la propagación de los clics en sus packs.
+  d.addEventListener('click', function () { setTimeout(pintar, 150); setTimeout(pintar, 600); }, true);
+  setInterval(pintar, 700);
   d.addEventListener('change', function () { setTimeout(pintar, 50); });
   var t;
   new MutationObserver(function () { clearTimeout(t); t = setTimeout(pintar, 200); })
