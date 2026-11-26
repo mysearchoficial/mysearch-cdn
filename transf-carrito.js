@@ -32,13 +32,8 @@
       if (mia.textContent !== txt) mia.textContent = txt;
     });
   }
-  var t;
-  function arrancar() {
-    pintar();
-    new MutationObserver(function (ms) {
-      for (var i = 0; i < ms.length; i++) { var n = ms[i].target; if (n.classList && n.classList.contains('ms-transf')) return; }
-      clearTimeout(t); t = setTimeout(pintar, 250);
-    }).observe(d.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['style', 'class'] });
-  }
+  // La página cambia todo el tiempo (contador, animaciones): en vez de esperar a que se calme,
+  // se recalcula cada 0,6 s. Es liviano: solo lee el Total y escribe si cambió.
+  function arrancar() { pintar(); setInterval(pintar, 600); }
   if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', arrancar); else arrancar();
 }();

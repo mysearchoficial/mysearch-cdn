@@ -54,16 +54,14 @@
     });
   }
 
-  var t, ultimo = '';
+  // Cada 0,7 s mira si cambió el carrito (LS.cart se actualiza al tocar +/− o agregar productos).
+  var ultimo = '';
   function mirar() {
-    var tot = d.querySelector('.js-cart-total');
-    var k = (tot && tot.textContent) + '|' + (window.LS && LS.cart && LS.cart.items ? LS.cart.items.length : '');
-    if (k === ultimo) return; ultimo = k;
-    clearTimeout(t); t = setTimeout(revisar, 700);
+    var c = window.LS && LS.cart;
+    var k = c && c.items ? c.items.map(function (i) { return i.item_id + ':' + i.quantity; }).join(',') : '';
+    if (k !== ultimo) { ultimo = k; revisar(); }
+    aviso();
   }
-  function arrancar() {
-    aviso(); revisar();
-    new MutationObserver(function () { mirar(); aviso(); }).observe(d.body, { childList: true, subtree: true, characterData: true });
-  }
+  function arrancar() { mirar(); setInterval(mirar, 700); }
   if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', arrancar); else arrancar();
 }();
