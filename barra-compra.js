@@ -1,7 +1,9 @@
 /* My Search · Barra de compra fija abajo, en celular, en las fichas del Localizador y la Tarjeta.
    Muestra lo que está elegido (pack de Wigy o Kit Black Friday) con su precio por transferencia, y el botón
    «Agregar al carrito» toca el botón principal del pack, así que la compra sigue el mismo camino.
-   Reemplaza a la barra vieja del Localizador (#msl-bar). Se oculta con el carrito o el menú abiertos. */
+   Reemplaza a la barra vieja del Localizador (#msl-bar). Se oculta con el carrito o el menú abiertos.
+   También suma al total los productos complementarios tildados en el pack (p. ej. el cargador en la Tarjeta):
+   en la barra y en el botón «Agregar al carrito · $X», que Wigy no actualiza. */
 !function () {
   var d = document, H = d.documentElement;
   var esLoc = !!d.querySelector('[data-store^="product-image-334471967"]');
@@ -9,6 +11,7 @@
   if (!esLoc && !esTarj) return;
 
   var css =
+    'html:not(.msbf-on) .wigy-widget-bundle-cantidad .wigy-bundle-cantidad-boton[data-ms-tot]::after{content:" · " attr(data-ms-tot)!important}' +
     '#msl-bar{display:none!important}#msbar{display:none}' +
     '@media(max-width:767px){' +
     '#msbar{position:fixed;left:0;right:0;bottom:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:#faf8f3;border-top:2px solid #13294b;box-shadow:0 -6px 20px rgba(19,41,75,.08);font-family:Inter,sans-serif;box-sizing:border-box}' +
@@ -35,22 +38,44 @@
     if (!v.length) return '';
     return v.every(function (x) { return x === v[0]; }) ? v[0] : 'iPhone y Android';
   }
+  function num(t) { var m = (t || '').match(/\$\s*([\d.]+)/); return m ? +m[1].replace(/\./g, '') : 0; }
+  function plata(n) { return '$' + Math.round(n).toLocaleString('es-AR'); }
+  // Complementarios tildados en el pack: precio y nombre corto ("cargador").
+  function extras(card) {
+    var tot = 0, nombres = [];
+    [].forEach.call(card.querySelectorAll('.wigy-complementary-check.wigy-checked'), function (ck) {
+      var w = ck.closest('.wigy-complementary-product') || ck.parentNode;
+      var p = w && w.querySelector('.wigy-price-promo');
+      var t = w && w.querySelector('.wigy-complementary-title');
+      if (p) { tot += num(p.textContent); nombres.push(((t && t.textContent) || 'extra').trim().split(/\s+/)[0].toLowerCase()); }
+    });
+    return { tot: tot, nombres: nombres };
+  }
+  function boton(valor) {
+    var btn = principal(); if (!btn) return;
+    if (valor) { if (btn.getAttribute('data-ms-tot') !== valor) btn.setAttribute('data-ms-tot', valor); }
+    else if (btn.hasAttribute('data-ms-tot')) btn.removeAttribute('data-ms-tot');
+  }
   var antes = '';
   function pintar() {
     if (!bar.parentNode && d.body) d.body.appendChild(bar);
     var kit = H.classList.contains('msbf-on'), cl = '', a, b;
     if (kit) {
+      boton('');
       cl = 'k'; a = '<i>BLACK FRIDAY</i>Kit completo'; b = '$120.636<em>42% OFF</em>';
     } else {
       var card = d.querySelector('.wigy-bundle-cantidad-producto.wigy-selected');
-      if (!card) { bar.style.display = 'none'; return; }
+      if (!card) { bar.style.display = 'none'; boton(''); return; }
       var tx = (card.innerText || card.textContent).replace(/\s+/g, ' ');
       var n = +((tx.match(/Lleva (\d+)/) || [])[1] || 1);
       var p = (tx.match(/por transferencia\s*\$\s*([\d.]+)/) || [])[1];
       var nombre = esLoc ? (n === 1 ? '1 localizador' : n + ' localizadores') : (n === 1 ? '1 tarjeta' : n + ' tarjetas');
       var o = esLoc ? os() : '';
-      a = nombre + (o ? ' · ' + o : '');
-      b = p ? '$' + p + (n > 1 && /ENV[IÍ]O GRATIS/i.test(tx) ? '<em>ENVÍO GRATIS</em>' : '') : '';
+      // Total por transferencia: el del pack más los complementarios tildados con el 10% de transferencia.
+      var ex = extras(card), tr = p ? +p.replace(/\./g, '') + ex.tot * 0.9 : 0;
+      boton(ex.tot && tr ? plata(tr) : '');
+      a = nombre + (ex.nombres.length ? ' + ' + ex.nombres.join(' + ') : '') + (o ? ' · ' + o : '');
+      b = tr ? plata(tr) + (n > 1 && /ENV[IÍ]O GRATIS/i.test(tx) ? '<em>ENVÍO GRATIS</em>' : '') : '';
     }
     bar.style.display = '';
     var f = cl + a + b;
