@@ -359,7 +359,12 @@
     'html.msbf-on .wigy-bundle-cantidad-producto.wigy-selected{border-color:#ddd!important}' +
     'html.msbf-on .wigy-bundle-cantidad-radio.wigy-checked{border-color:#ccc!important}' +
     'html.msbf-on .wigy-bundle-cantidad-radio-dot{display:none!important}' +
-    'html.msbf-on.msbf-on .wigy-widget-bundle-cantidad .wigy-bundle-cantidad-boton::after{content:" · $120.636"!important}';
+    'html.msbf-on.msbf-on .wigy-widget-bundle-cantidad .wigy-bundle-cantidad-boton::after{content:" · $120.636"!important}' +
+    // Orden visual fijo, aunque Wigy reordene el bloque al redibujarlo (por ejemplo, mientras agrega al carrito):
+    // packs, kit, nota del ahorro y botón. Va con !important porque Wigy pone estilos en línea («order: unset»).
+    '.wigy-widget-bundle-cantidad .nube-column:has(> #msbf){display:flex!important;flex-direction:column!important;align-items:stretch!important}' +
+    '.nube-column:has(> #msbf) > *{order:0!important}.nube-column:has(> #msbf) > #msbf{order:1!important}' +
+    '.nube-column:has(> #msbf) > .mspk-nt{order:2!important}.nube-column:has(> #msbf) > .wigy-bundle-cantidad-boton{order:3!important}';
 
   var html = '<div class="mbf" id="msbf" role="radio" tabindex="0">' +
     '<div class="mbf-band"><b>KIT BLACK FRIDAY</b><span><em>3 CUOTAS SIN INTERÉS</em><em>ENVÍO GRATIS</em></span></div>' +
