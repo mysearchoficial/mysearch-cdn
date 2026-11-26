@@ -36,10 +36,10 @@
     '<span class="c" role="timer"><span class="b" data-u="d"></span><span class="b" data-u="h"></span><span class="b" data-u="m"></span><span class="b" data-u="s"></span></span>' +
     '<span class="cta">Ver el kit · 42% OFF →</span>';
 
-  // En la ficha del Localizador, en vez de recargar, baja hasta el kit.
+  // En las fichas que ya muestran el kit (Localizador y Tarjeta), en vez de cambiar de página, baja hasta el kit.
   bar.addEventListener('click', function (e) {
     var kit = d.getElementById('msbf');
-    if (kit && location.pathname.indexOf(LOC) === 0) { e.preventDefault(); kit.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    if (kit) { e.preventDefault(); kit.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
   });
 
   function poner() {
