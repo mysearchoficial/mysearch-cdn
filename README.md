@@ -24,6 +24,6 @@ https://cdn.jsdelivr.net/gh/mysearchoficial/mysearch-cdn@<commit>/kit-bf.js
 ## ms.js (desde el 26/11/2026)
 El sello carga **un solo archivo**, `ms.js`, que se arma con `./build.sh` juntando, en este orden:
 `bf-timer.js` (barra Black Friday con contador, dentro del encabezado fijo), `combo-os.js` (selector iPhone/Android al pie del combo elegido),
-`kit-bf.js` (Kit Black Friday), `pack3-tarjeta.js` ("Lleva 3" de la Tarjeta agrega el kit nativo "Pack 3 Tarjetas", producto 383780051), `barra-compra.js` (barra de compra fija en celular) y `videos-arriba.js`.
+`kit-bf.js` (Kit Black Friday), `pack3-tarjeta.js` ("Lleva 3" de la Tarjeta agrega el kit nativo "Pack 3 Tarjetas", producto 383780051), `autopack-tarjeta.js` (3 tarjetas sueltas en el carrito se cambian solas por el pack), `transf-carrito.js` (línea "O $X con Transferencia" en el carrito cuando el tema la oculta por promos), `barra-compra.js` (barra de compra fija en celular) y `videos-arriba.js`.
 Después de editar cualquiera, correr `./build.sh`, commitear y cambiar el commit en la línea del sello.
 `bf-timer.js` y `kit-bf.js` se apagan solos el 01/12/2026 00:00; el resto queda.
