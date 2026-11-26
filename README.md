@@ -19,3 +19,11 @@ Cada cambio se publica con el número del commit en la URL, así jsDelivr sirve 
 ```
 https://cdn.jsdelivr.net/gh/mysearchoficial/mysearch-cdn@<commit>/kit-bf.js
 ```
+
+
+## ms.js (desde el 26/11/2026)
+El sello carga **un solo archivo**, `ms.js`, que se arma con `./build.sh` juntando, en este orden:
+`bf-timer.js` (barra Black Friday con contador, dentro del encabezado fijo), `combo-os.js` (selector iPhone/Android al pie del combo elegido),
+`kit-bf.js` (Kit Black Friday), `barra-compra.js` (barra de compra fija en celular) y `videos-arriba.js`.
+Después de editar cualquiera, correr `./build.sh`, commitear y cambiar el commit en la línea del sello.
+`bf-timer.js` y `kit-bf.js` se apagan solos el 01/12/2026 00:00; el resto queda.
