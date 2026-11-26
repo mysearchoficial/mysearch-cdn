@@ -149,14 +149,20 @@
   });
 
   function poner() {
-    if (d.getElementById('msbf')) return;
     var cards = d.querySelectorAll('.wigy-widget-bundle-cantidad .wigy-bundle-cantidad');
     var ult = cards[cards.length - 1];
-    if (ult && ult.parentNode) { ult.insertAdjacentHTML('afterend', html); pintar(); }
+    if (!ult || !ult.parentNode) return;
+    var k = d.getElementById('msbf');
+    if (!k) { ult.insertAdjacentHTML('afterend', html); pintar(); return; }
+    // Wigy redibuja el bloque (por ejemplo, después de agregar al carrito) y deja su botón
+    // arriba del kit. Se vuelve a ordenar: packs, kit, nota del ahorro y botón.
+    if (k.previousElementSibling !== ult) ult.parentNode.insertBefore(k, ult.nextSibling);
+    var btn = ult.parentNode.querySelector(':scope > .wigy-bundle-cantidad-boton');
+    var nt = ult.parentNode.querySelector(':scope > .mspk-nt');
+    if (btn && nt && (nt.compareDocumentPosition(btn) & 2 || k.compareDocumentPosition(nt) & 2)) ult.parentNode.insertBefore(nt, btn);
   }
   var t;
   new MutationObserver(function () {
-    if (d.getElementById('msbf')) return;
     clearTimeout(t); t = setTimeout(poner, 60);
   }).observe(d.body, { childList: true, subtree: true });
   pintar(); poner();
