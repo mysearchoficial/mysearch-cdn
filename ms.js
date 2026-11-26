@@ -83,7 +83,6 @@
     t = setTimeout(function () { var hd = cabecera(); if (html.classList.contains('msbt-on') && (!bar.parentNode || (hd && hd.firstChild !== bar))) poner(); }, 100);
   }).observe(cabecera() || d.body || html, { childList: true });
 }();
-
 /* ---- combo-os.js ---- */
 /* My Search · Selector de celular (iPhone / Android) al pie del combo elegido.
    Estilos compartidos (.mso) para las fichas del Localizador y la Tarjeta; el kit Black Friday
@@ -108,8 +107,8 @@
     '.mso{display:block;background:#fff;color:#13294b;font-family:Inter,sans-serif;text-align:left;white-space:normal;cursor:default;line-height:1.3}' +
     '.wigy-bundle-cantidad-producto .mso{border-top:1px solid #e6e8ee;margin:12px -14px -14px;padding:12px 14px 14px;border-radius:0 0 12px 12px}' +
     '#msbf .mso{padding:12px 14px 14px}#msbf:not(.on) .mso{display:none}' +
-    '.mso .h{margin:0 0 8px;font:700 13px Inter,sans-serif;color:#13294b}' +
-    '.mso .h b{font-weight:700}.mso .h .h2,.mso.mix .h .h1{display:none}.mso.mix .h .h2{display:inline}' +
+    '.mso .h{margin:0 0 8px;padding:0;font:700 13px Inter,sans-serif!important;color:#13294b;text-transform:none;letter-spacing:0}' +
+    '.mso .h b{font-weight:700}.mso .h .t2,.mso.mix .h .t1{display:none}.mso.mix .h .t2{display:inline}' +
     '.mso .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mso.mix .seg{display:none}' +
     '.mso .seg span{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border:1.5px solid #d5d9e2;border-radius:10px;background:#fff;font:700 15px Inter,sans-serif;color:#13294b;cursor:pointer;-webkit-tap-highlight-color:transparent}' +
     '.mso .seg img{width:22px;height:22px}' +
@@ -131,7 +130,7 @@
      oss = sistema de cada localizador ("iPhone"/"Android"/null). */
   window.msoHTML = function (n, oss, a, u, mix) {
     var todos = oss.every(function (x) { return x && x === oss[0]; }) ? oss[0] : null;
-    var h = '<p class="h"><span class="h1">¿Qué celular tenés?</span><span class="h2">¿Para qué celular es cada uno?</span></p>' +
+    var h = '<p class="h"><span class="t1">¿Qué celular tenés?</span><span class="t2">¿Para qué celular es cada uno?</span></p>' +
       '<div class="seg">' + OS.map(function (o) {
         return '<span role="button" tabindex="0" ' + a + '="' + o + '" class="' + (todos === o ? 'on' : '') + '"><img src="' + IMG[o] + '" alt="">' + o + '</span>';
       }).join('') + '</div>';
@@ -352,7 +351,6 @@
   }).observe(d.body, { childList: true, subtree: true });
   pintar(); poner();
 }();
-
 /* ---- barra-compra.js ---- */
 /* My Search · Barra de compra fija abajo, en celular, en las fichas del Localizador y la Tarjeta.
    Muestra lo que está elegido (pack de Wigy o Kit Black Friday) con su precio por transferencia, y el botón

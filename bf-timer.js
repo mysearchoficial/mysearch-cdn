@@ -1,6 +1,6 @@
 /* My Search · Black Friday: barra negra con cuenta regresiva arriba de todo.
-   Ocupa el lugar de la barra de anuncios (slot before_main_content de NubeSDK, 53px),
-   así que no corre la página. Termina el martes 01/12/2026 a las 00:00 (hora Argentina)
+   Va dentro del encabezado fijo del tema, así que acompaña al bajar (celular y computadora).
+   Mientras está, se oculta la barra de anuncios (slot before_main_content de NubeSDK, 53px). Termina el martes 01/12/2026 a las 00:00 (hora Argentina)
    y a esa hora se saca sola y vuelve la barra de anuncios. Para probar fuera de fecha: ?msbt=1 */
 !function () {
   var d = document, html = d.documentElement;
@@ -16,6 +16,7 @@
 
   var css =
     'html.msbt-on ' + SLOT + '{display:none!important}' +
+    'header.js-head-main>#msbt{flex:0 0 100%;width:100%}' +
     '#msbt{font-family:Inter,sans-serif;color:#fff;background:#0b0b0c;height:53px;display:flex;align-items:center;justify-content:center;gap:22px;padding:0 16px;border-bottom:2px solid #E3262F;box-sizing:border-box;text-decoration:none;position:relative;z-index:2}' +
     '#msbt *{box-sizing:border-box}' +
     '#msbt .t{background:#E3262F;color:#fff;font-weight:800;font-size:13px;letter-spacing:.08em;padding:5px 10px;border-radius:4px;white-space:nowrap}' +
@@ -24,7 +25,7 @@
     '#msbt .b{background:#1c1d21;border:1px solid #3a3d44;border-radius:5px;padding:3px 7px;font-size:16px;font-weight:800;min-width:44px;text-align:center;font-variant-numeric:tabular-nums;color:#fff;line-height:1.3}' +
     '#msbt .b small{font-size:10px;color:#9aa0ab;font-weight:600;margin-left:2px}' +
     '#msbt .cta{color:#fff;font-weight:700;font-size:13px;border-bottom:1px solid #E3262F;padding-bottom:1px;white-space:nowrap}' +
-    '@media(max-width:767px){#msbt{gap:8px;padding:0 10px}#msbt .l,#msbt .cta{display:none}#msbt .t{font-size:11px;padding:4px 7px}#msbt .b{min-width:0;font-size:14px;padding:3px 5px}#msbt .c{gap:4px}}' +
+    '@media(max-width:767px){#msbt{height:46px;gap:8px;padding:0 10px}#msbt .l,#msbt .cta{display:none}#msbt .t{font-size:11px;padding:4px 7px}#msbt .b{min-width:0;font-size:14px;padding:3px 5px}#msbt .c{gap:4px}}' +
     '@media(max-width:340px){#msbt .t{font-size:10px;padding:3px 5px}#msbt .b{font-size:13px;padding:2px 4px}#msbt .b small{font-size:9px}}';
 
   var st = d.createElement('style'); st.id = 'msbt-css'; st.textContent = css; d.head.appendChild(st);
@@ -42,10 +43,11 @@
     if (kit) { e.preventDefault(); kit.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
   });
 
+  function cabecera() { return d.querySelector('header.js-head-main'); }
   function poner() {
     if (!d.body) return false;
-    var slot = d.querySelector(SLOT);
-    if (slot) { if (bar.nextSibling !== slot) slot.parentNode.insertBefore(bar, slot); }
+    var hd = cabecera();
+    if (hd) { if (hd.firstChild !== bar) hd.insertBefore(bar, hd.firstChild); }
     else if (!bar.parentNode) d.body.insertBefore(bar, d.body.firstChild);
     html.classList.add('msbt-on');
     return true;
@@ -75,6 +77,6 @@
   var t;
   new MutationObserver(function () {
     clearTimeout(t);
-    t = setTimeout(function () { if (html.classList.contains('msbt-on') && (!bar.parentNode || (d.querySelector(SLOT) && bar.nextSibling !== d.querySelector(SLOT)))) poner(); }, 100);
-  }).observe(d.body || html, { childList: true });
+    t = setTimeout(function () { var hd = cabecera(); if (html.classList.contains('msbt-on') && (!bar.parentNode || (hd && hd.firstChild !== bar))) poner(); }, 100);
+  }).observe(cabecera() || d.body || html, { childList: true });
 }();

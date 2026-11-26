@@ -22,7 +22,7 @@
   var IMG_TARJ = 'https://wigy.nyc3.digitaloceanspaces.com/images/widgets/store_1301_QKNwJfJZctGhiyu5JMS1_1793132207.webp';
   var IMG_KT = 'https://d1a9qnv764bsoo.cloudfront.net/stores/007/481/104/rte/ms-th-keytag.jpg';
   var R = '#E3262F', R2 = '#FF5A5F';
-  var estado = { on: true, os: null };
+  var estado = { on: true, oss: ['Android', 'Android', 'Android'], mix: false, tocado: false };
 
   var S = '#msbf.mbf';
   var css = '' +
@@ -49,16 +49,7 @@
     S + ' .mbf-r s{display:block;text-decoration:none;font:500 11px Inter,sans-serif;color:#9aa0ab;margin-top:3px}' +
     S + ' .mbf-r u{display:block;text-decoration:none;margin:4px 0 5px;color:' + R2 + ';font:700 11.5px Inter,sans-serif;line-height:1.25}' +
     S + ' .mbf-r em{display:inline-block;font:800 11px Inter,sans-serif;font-style:normal;background:' + R + ';color:#fff;border-radius:99px;padding:3px 8px}' +
-    S + ' .mbf-op{display:none;border-top:1px solid #24262b;padding:9px 12px 11px 41px}' +
-    (esTarjeta ? S + '.on .mbf-op{display:block}' : '') +
-    S + ' .mbf-op div{display:flex;align-items:center;gap:6px;margin:3px 0}' +
-    S + ' .mbf-op label{flex:none;width:62px;font:600 11.5px Inter,sans-serif;color:#b9bdc6}' +
-    S + ' .mbf-op button{font:700 12px Inter,sans-serif;color:#fff;background:#17181b;border:1px solid #3a3d44;border-radius:99px;padding:5px 12px;cursor:pointer;line-height:1}' +
-    S + ' .mbf-op button.on{background:#fff;color:#0b0b0c;border-color:#fff}' +
-    S + ' .mbf-op p{display:none;margin:4px 0 0;font:700 11.5px Inter,sans-serif;color:' + R2 + '}' +
-    S + '.falta .mbf-op p{display:block}' +
-    S + '.falta [data-os]{border-color:' + R2 + '}' +
-    '@media (max-width:374px){' + S + ' .mbf-band em:last-child{display:none}' + S + ' .mbf-in{gap:7px;padding:11px 9px 12px}' + S + ' .mbf-l p{font-size:13px}' + S + ' .mbf-l small{font-size:11px}' + S + ' .mbf-th{display:none}' + S + ' .mbf-l small{margin-bottom:0}' + S + ' .mbf-r strong{font-size:18px}' + S + ' .mbf-op{padding-left:12px}}' +
+    '@media (max-width:374px){' + S + ' .mbf-band em:last-child{display:none}' + S + ' .mbf-in{gap:7px;padding:11px 9px 12px}' + S + ' .mbf-l p{font-size:13px}' + S + ' .mbf-l small{font-size:11px}' + S + ' .mbf-th{display:none}' + S + ' .mbf-l small{margin-bottom:0}' + S + ' .mbf-r strong{font-size:18px}}' +
     'html.msbf-on .wigy-bundle-cantidad-producto.wigy-selected{border-color:#ddd!important}' +
     'html.msbf-on .wigy-bundle-cantidad-radio.wigy-checked{border-color:#ccc!important}' +
     'html.msbf-on .wigy-bundle-cantidad-radio-dot{display:none!important}' +
@@ -74,21 +65,26 @@
     '<small>por transferencia</small><strong>$120.636</strong><s>$134.040 con tarjeta</s>' +
     '<u>3 cuotas sin interés<br>de $44.680</u><em>Ahorrás $88.964 · 42%</em>' +
     '</div></div>' +
-    '<div class="mbf-op">' +
-    '<div><label>Celular</label><button type="button" data-os="iOS">iPhone</button><button type="button" data-os="Android">Android</button></div>' +
-    '<p>Elegí tu celular para los localizadores</p>' +
-    '</div></div>';
+    '<div class="mso"></div></div>';
 
   var st = d.createElement('style'); st.id = 'msbf-css'; st.textContent = css; d.head.appendChild(st);
 
-  // Sistema de cada uno de los 3 localizadores. En la Tarjeta, el elegido en el kit.
-  // En el Localizador, el del selector "¿Qué celular tenés?" (o uno por uno).
+  // Sistema de cada uno de los 3 localizadores: el elegido al pie del kit (todos iguales o uno por uno).
   function sistemas() {
-    if (esTarjeta) return [estado.os, estado.os, estado.os];
-    var v = [].map.call(d.querySelectorAll('.wigy-widget-bundle-cantidad select'), function (s) { return s.value === 'iOS' ? 'iOS' : 'Android'; });
-    if (!v.length) v = ['Android'];
-    while (v.length < 3) v.push(v[0]);
-    return v.slice(0, 3);
+    return estado.oss.map(function (o) { return o === 'iPhone' ? 'iOS' : 'Android'; });
+  }
+  // En el Localizador, si todavía no se tocó el pie del kit, arranca con lo elegido en los packs de Wigy.
+  function desdeWigy() {
+    if (esTarjeta || estado.tocado) return;
+    var v = [].map.call(d.querySelectorAll('select[name^="dc_dim_334471967"]'), function (s) { return s.value === 'iOS' ? 'iPhone' : 'Android'; });
+    if (v.length && v.every(function (x) { return x === v[0]; })) estado.oss = [v[0], v[0], v[0]];
+  }
+  function pie() {
+    var m = d.querySelector('#msbf .mso');
+    if (!m || !window.msoHTML) return;
+    m.classList.toggle('mix', estado.mix);
+    var h = window.msoHTML(3, estado.oss, 'data-k-os', 'data-k-u');
+    if (m.getAttribute('data-h') !== h) { m.innerHTML = h; m.setAttribute('data-h', h); }
   }
   function pintar() {
     var c = d.getElementById('msbf');
@@ -96,7 +92,7 @@
     if (!c) return;
     c.classList.toggle('on', estado.on);
     c.setAttribute('aria-checked', estado.on ? 'true' : 'false');
-    [].forEach.call(c.querySelectorAll('[data-os]'), function (b) { b.classList.toggle('on', b.getAttribute('data-os') === estado.os); });
+    pie();
   }
   function sumar(prod, opcion, cant) {
     var fd = new FormData();
@@ -106,11 +102,6 @@
     return fetch('/comprar/', { method: 'POST', body: fd, credentials: 'same-origin' }).catch(function () {});
   }
   function agregarKit(btn) {
-    var c = d.getElementById('msbf');
-    if (esTarjeta && !estado.os) {
-      if (c) { c.classList.add('falta'); c.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-      return;
-    }
     if (btn) { btn.disabled = true; btn.style.opacity = '.7'; }
     var cuenta = {};
     sistemas().forEach(function (os) { cuenta[os] = (cuenta[os] || 0) + 1; });
@@ -125,8 +116,17 @@
     var t = e.target;
     var c = t.closest && t.closest('#msbf');
     if (c) {
-      var o = t.closest('[data-os]');
-      if (o) { estado.os = o.getAttribute('data-os'); c.classList.remove('falta'); }
+      var o = t.closest('[data-k-os]'), u = t.closest('[data-k-u]'), mx = t.closest('.mso .mix');
+      if (o) {
+        var os = o.getAttribute('data-k-os');
+        estado.oss = [os, os, os]; estado.tocado = true;
+        // En el Localizador, que los packs de Wigy queden con el mismo celular.
+        var w = d.querySelector('#msfx-os [data-msfx-os="' + os + '"]'); if (w) w.click();
+      } else if (u) {
+        estado.oss[+u.getAttribute('data-k-u')] = u.getAttribute('data-o'); estado.tocado = true;
+      } else if (mx) {
+        e.preventDefault(); estado.mix = !estado.mix;
+      } else if (!estado.on) desdeWigy();
       estado.on = true; pintar(); return;
     }
     if (estado.on && t.closest && t.closest('.wigy-widget-bundle-cantidad .wigy-bundle-cantidad-boton')) {
