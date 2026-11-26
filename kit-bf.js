@@ -109,6 +109,13 @@
     sistemas().forEach(function (os) { cuenta[os] = (cuenta[os] || 0) + 1; });
     var pasos = Object.keys(cuenta).map(function (os) { return [P_LOC, os, cuenta[os]]; })
       .concat([[P_TARJ_KIT, null, 1], [P_KT, 'Negro', 2]]);
+    // Abre el carrito lateral con todo cargado (carrito-lateral.js). Si no está, va a /comprar/ como antes.
+    if (window.msCarrito) {
+      window.msCarrito(pasos.map(function (x) {
+        var c = [['add_to_cart', x[0]]]; if (x[1]) c.push(['variation[0]', x[1]]); c.push(['quantity', String(x[2])]); return c;
+      })).then(function () { if (btn) { btn.disabled = false; btn.style.opacity = ''; } });
+      return;
+    }
     var p = Promise.resolve();
     pasos.forEach(function (x) { p = p.then(function () { return sumar(x[0], x[1], x[2]); }); });
     p.then(function () { location.href = '/comprar/'; });

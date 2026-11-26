@@ -2,7 +2,7 @@
    En la ficha de la Tarjeta, con "Lleva 3" elegido en el bundle de Wigy (197758), "Agregar al carrito"
    agrega el kit nativo "Pack 3 Tarjetas Localizadoras MySearch" (producto 383780051: 3 tarjetas, 23% sobre
    el precio promocional = $138.369) en lugar de 3 tarjetas sueltas, más los complementarios tildados (cargador).
-   Así el descuento es solo del pack: 4 tarjetas = pack + 1 suelta.
+   Así el descuento es solo del pack: 4 tarjetas = pack + 1 suelta. Después abre el carrito lateral.
    La promo automática de Wigy en la tarjeta está apagada: el precio lo pone el kit.
    Con el Kit Black Friday elegido (html.msbf-on) no hace nada: lo maneja kit-bf.js. */
 !function () {
@@ -35,6 +35,11 @@
       var ti = ((w && w.querySelector('.wigy-complementary-title')) || {}).textContent || '';
       EXTRA.forEach(function (x) { if (x[0].test(ti)) pasos.push([['add_to_cart', x[1]], ['quantity', '1']]); });
     });
+    // Abre el carrito lateral con el pack (carrito-lateral.js). Si no está, va a /comprar/ como antes.
+    if (window.msCarrito) {
+      window.msCarrito(pasos).then(function () { btn.disabled = false; btn.style.opacity = ''; });
+      return;
+    }
     var p = Promise.resolve();
     pasos.forEach(function (c) { p = p.then(function () { return post(c); }); });
     p.then(function () { location.href = '/comprar/'; });

@@ -1,7 +1,8 @@
 /* My Search · Armado automático del pack de tarjetas (desde el 26/11/2026).
    Si el carrito tiene 3 o más Tarjetas Localizadoras sueltas (producto 375874883, fuera de un kit),
-   cambia cada 3 por un "Pack 3 Tarjetas Localizadoras MySearch" (kit nativo 383780051) y lleva al
-   carrito con el aviso "Armamos tu pack de 3". Ej.: 3 sueltas → 1 pack; 4 → pack + 1; 6 → 2 packs.
+   cambia cada 3 por un "Pack 3 Tarjetas Localizadoras MySearch" (kit nativo 383780051) y muestra el aviso
+   "Armamos tu pack de 3". En la tienda abre el carrito lateral (carrito-lateral.js); en /comprar/ recarga.
+   Ej.: 3 sueltas → 1 pack; 4 → pack + 1; 6 → 2 packs.
    Se dispara al cargar la página y cada vez que cambia el total del carrito (lateral o /comprar/). */
 !function () {
   var d = document, TARJ = 375874883, KIT = '383780051', COMP = 71589, TARJ_V = 1624006946, AHORRO = 41331;
@@ -13,10 +14,12 @@
   function aviso() {
     // El mensaje queda 20 s: la página del carrito se redibuja al cargar y puede borrar el aviso,
     // así que se vuelve a poner mientras dure.
-    var m = ss(K_MSG); if (!m || !/^\/comprar\/?$/.test(location.pathname)) return;
+    var m = ss(K_MSG); if (!m) return;
     var partes = m.split('|'), n = +partes[0] || 1, ts = +partes[1] || 0;
     if (Date.now() - ts > 20000) { ss(K_MSG, null); return; }
-    var f = d.querySelector('[data-store="cart-form"]') || d.querySelector('#shoppingCartPage') || d.querySelector('main');
+    var f = /^\/comprar\/?$/.test(location.pathname)
+      ? (d.querySelector('[data-store="cart-form"]') || d.querySelector('#shoppingCartPage') || d.querySelector('main'))
+      : d.querySelector('#modal-cart .js-ajax-cart-list');
     if (!f || d.getElementById('ms-autopack')) return;
     var el = d.createElement('div');
     el.id = 'ms-autopack';
@@ -44,15 +47,21 @@
       var nueva = k === 0 ? resto : 0;
       p = p.then(function () { return post('/cart/update/', 'quantity%5B' + it.item_id + '%5D=' + nueva + '&cart_page=0', true); });
     });
+    var kit = [['add_to_cart', KIT],
+      ['kit_selections', JSON.stringify([{ kit_component_id: COMP, variant_id: TARJ_V, quantity: 3 }])],
+      ['quantity', String(packs)]];
+    var enCarrito = /^\/comprar\/?$/.test(location.pathname);
     p.then(function () {
-      var f = new FormData();
-      f.append('add_to_cart', KIT);
-      f.append('kit_selections', JSON.stringify([{ kit_component_id: COMP, variant_id: TARJ_V, quantity: 3 }]));
-      f.append('quantity', String(packs));
-      return post('/comprar/', f);
-    }).then(function () {
-      ss(K_MSG, packs + '|' + Date.now()); ss(K_BUSY, null);
-      if (/^\/comprar\/?$/.test(location.pathname)) location.reload(); else location.href = '/comprar/';
+      if (!enCarrito && window.msCarrito) {
+        // Agrega el pack con la función del tema y abre el carrito lateral con el aviso adentro.
+        ss(K_MSG, packs + '|' + Date.now());
+        return window.msCarrito([kit]).then(function () { ss(K_BUSY, null); aviso(); });
+      }
+      var f = new FormData(); kit.forEach(function (x) { f.append(x[0], x[1]); });
+      return post('/comprar/', f).then(function () {
+        ss(K_MSG, packs + '|' + Date.now()); ss(K_BUSY, null);
+        if (enCarrito) location.reload(); else location.href = '/comprar/';
+      });
     });
   }
 

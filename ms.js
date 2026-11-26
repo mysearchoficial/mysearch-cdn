@@ -197,6 +197,66 @@
   iniciar();
 }();
 
+/* ---- carrito-lateral.js ---- */
+/* My Search · Agregar al carrito y abrir el carrito lateral (desde el 26/11/2026).
+   window.msCarrito(pasos): agrega varios productos y, en vez de ir a /comprar/, abre el carrito lateral.
+   Cada paso es una lista de campos del formulario de compra, ej. [['add_to_cart','383780051'],['quantity','1']].
+   Todos los pasos menos el último se mandan directo; el último pasa por la función del tema
+   (LS.addToCartEnhanced), que devuelve el carrito completo y redibuja el carrito lateral con todo.
+   Si algo falla, va a /comprar/ como antes.
+   También acomoda las etiquetas de la barra de Wigy "Envío gratis / 3 Cuotas sin intereses" (169380),
+   que se pisaban: cada etiqueta queda alineada a la derecha de su marca. */
+!function () {
+  var d = document;
+
+  var css = '[data-component-id^="wigy-bp-169380"] .nube-box[style*="position: absolute"][style*="flex-direction: column"]{' +
+      'width:84px!important;margin-left:-80px!important;align-items:flex-end!important;text-align:right!important}' +
+    '[data-component-id^="wigy-bp-169380"] .nube-box[style*="position: absolute"][style*="flex-direction: column"]:last-child{margin-left:-84px!important}' +
+    '[data-component-id^="wigy-bp-169380"] .nube-box[style*="position: absolute"][style*="flex-direction: column"] p{text-align:right!important;white-space:normal!important}';
+  var st = d.createElement('style'); st.textContent = css; (d.head || d.documentElement).appendChild(st);
+
+  function abierto() { var m = d.getElementById('modal-cart'); return !!(m && m.classList.contains('modal-show')); }
+  function abrir() {
+    if (abierto()) return true;
+    var bs = [].slice.call(d.querySelectorAll('a.js-modal-open[data-toggle="#modal-cart"]'));
+    var b = bs.filter(function (a) { return a.offsetParent; })[0] || bs[0];
+    if (!b) return false;
+    b.click(); return true;
+  }
+  window.msAbrirCarrito = abrir;
+
+  function fd(c) { var f = new FormData(); c.forEach(function (x) { f.append(x[0], x[1]); }); return f; }
+  function items() { try { return JSON.stringify((window.LS && LS.cart && LS.cart.items || []).map(function (i) { return i.item_id + ':' + i.quantity; })); } catch (e) { return ''; } }
+
+  window.msCarrito = function (pasos) {
+    var resto = pasos.slice(0, -1), ult = pasos[pasos.length - 1];
+    var p = Promise.resolve();
+    resto.forEach(function (c) {
+      p = p.then(function () { return fetch('/comprar/', { method: 'POST', body: fd(c), credentials: 'same-origin' }).catch(function () {}); });
+    });
+    return p.then(function () {
+      var J = window.jQueryNuvem, L = window.LS;
+      if (!ult || !J || !L || typeof L.addToCartEnhanced !== 'function' || !d.getElementById('modal-cart')) throw new Error('sin carrito lateral');
+      var f = d.createElement('form');
+      f.action = '/comprar/'; f.method = 'post'; f.style.display = 'none';
+      ult.forEach(function (x) { var i = d.createElement('input'); i.type = 'hidden'; i.name = x[0]; i.value = x[1]; f.appendChild(i); });
+      d.body.appendChild(f);
+      var antes = items();
+      L.addToCartEnhanced(J(f));
+      return new Promise(function (ok, ko) {
+        var t0 = Date.now();
+        (function esperar() {
+          if (items() !== antes) { f.remove(); return ok(); }
+          if (Date.now() - t0 > 8000) { f.remove(); return ko(new Error('sin respuesta')); }
+          setTimeout(esperar, 200);
+        })();
+      });
+    }).then(function () {
+      if (!abrir()) location.href = '/comprar/';
+    }).catch(function () { location.href = '/comprar/'; });
+  };
+}();
+
 /* ---- kit-bf.js ---- */
 /* My Search · "Kit Black Friday" como opción elegible dentro del selector de packs
    de las fichas del Localizador y la Tarjeta. Viene elegido de entrada; con él elegido,
@@ -309,6 +369,13 @@
     sistemas().forEach(function (os) { cuenta[os] = (cuenta[os] || 0) + 1; });
     var pasos = Object.keys(cuenta).map(function (os) { return [P_LOC, os, cuenta[os]]; })
       .concat([[P_TARJ_KIT, null, 1], [P_KT, 'Negro', 2]]);
+    // Abre el carrito lateral con todo cargado (carrito-lateral.js). Si no está, va a /comprar/ como antes.
+    if (window.msCarrito) {
+      window.msCarrito(pasos.map(function (x) {
+        var c = [['add_to_cart', x[0]]]; if (x[1]) c.push(['variation[0]', x[1]]); c.push(['quantity', String(x[2])]); return c;
+      })).then(function () { if (btn) { btn.disabled = false; btn.style.opacity = ''; } });
+      return;
+    }
     var p = Promise.resolve();
     pasos.forEach(function (x) { p = p.then(function () { return sumar(x[0], x[1], x[2]); }); });
     p.then(function () { location.href = '/comprar/'; });
@@ -359,7 +426,7 @@
    En la ficha de la Tarjeta, con "Lleva 3" elegido en el bundle de Wigy (197758), "Agregar al carrito"
    agrega el kit nativo "Pack 3 Tarjetas Localizadoras MySearch" (producto 383780051: 3 tarjetas, 23% sobre
    el precio promocional = $138.369) en lugar de 3 tarjetas sueltas, más los complementarios tildados (cargador).
-   Así el descuento es solo del pack: 4 tarjetas = pack + 1 suelta.
+   Así el descuento es solo del pack: 4 tarjetas = pack + 1 suelta. Después abre el carrito lateral.
    La promo automática de Wigy en la tarjeta está apagada: el precio lo pone el kit.
    Con el Kit Black Friday elegido (html.msbf-on) no hace nada: lo maneja kit-bf.js. */
 !function () {
@@ -392,6 +459,11 @@
       var ti = ((w && w.querySelector('.wigy-complementary-title')) || {}).textContent || '';
       EXTRA.forEach(function (x) { if (x[0].test(ti)) pasos.push([['add_to_cart', x[1]], ['quantity', '1']]); });
     });
+    // Abre el carrito lateral con el pack (carrito-lateral.js). Si no está, va a /comprar/ como antes.
+    if (window.msCarrito) {
+      window.msCarrito(pasos).then(function () { btn.disabled = false; btn.style.opacity = ''; });
+      return;
+    }
     var p = Promise.resolve();
     pasos.forEach(function (c) { p = p.then(function () { return post(c); }); });
     p.then(function () { location.href = '/comprar/'; });
@@ -401,8 +473,9 @@
 /* ---- autopack-tarjeta.js ---- */
 /* My Search · Armado automático del pack de tarjetas (desde el 26/11/2026).
    Si el carrito tiene 3 o más Tarjetas Localizadoras sueltas (producto 375874883, fuera de un kit),
-   cambia cada 3 por un "Pack 3 Tarjetas Localizadoras MySearch" (kit nativo 383780051) y lleva al
-   carrito con el aviso "Armamos tu pack de 3". Ej.: 3 sueltas → 1 pack; 4 → pack + 1; 6 → 2 packs.
+   cambia cada 3 por un "Pack 3 Tarjetas Localizadoras MySearch" (kit nativo 383780051) y muestra el aviso
+   "Armamos tu pack de 3". En la tienda abre el carrito lateral (carrito-lateral.js); en /comprar/ recarga.
+   Ej.: 3 sueltas → 1 pack; 4 → pack + 1; 6 → 2 packs.
    Se dispara al cargar la página y cada vez que cambia el total del carrito (lateral o /comprar/). */
 !function () {
   var d = document, TARJ = 375874883, KIT = '383780051', COMP = 71589, TARJ_V = 1624006946, AHORRO = 41331;
@@ -414,10 +487,12 @@
   function aviso() {
     // El mensaje queda 20 s: la página del carrito se redibuja al cargar y puede borrar el aviso,
     // así que se vuelve a poner mientras dure.
-    var m = ss(K_MSG); if (!m || !/^\/comprar\/?$/.test(location.pathname)) return;
+    var m = ss(K_MSG); if (!m) return;
     var partes = m.split('|'), n = +partes[0] || 1, ts = +partes[1] || 0;
     if (Date.now() - ts > 20000) { ss(K_MSG, null); return; }
-    var f = d.querySelector('[data-store="cart-form"]') || d.querySelector('#shoppingCartPage') || d.querySelector('main');
+    var f = /^\/comprar\/?$/.test(location.pathname)
+      ? (d.querySelector('[data-store="cart-form"]') || d.querySelector('#shoppingCartPage') || d.querySelector('main'))
+      : d.querySelector('#modal-cart .js-ajax-cart-list');
     if (!f || d.getElementById('ms-autopack')) return;
     var el = d.createElement('div');
     el.id = 'ms-autopack';
@@ -445,15 +520,21 @@
       var nueva = k === 0 ? resto : 0;
       p = p.then(function () { return post('/cart/update/', 'quantity%5B' + it.item_id + '%5D=' + nueva + '&cart_page=0', true); });
     });
+    var kit = [['add_to_cart', KIT],
+      ['kit_selections', JSON.stringify([{ kit_component_id: COMP, variant_id: TARJ_V, quantity: 3 }])],
+      ['quantity', String(packs)]];
+    var enCarrito = /^\/comprar\/?$/.test(location.pathname);
     p.then(function () {
-      var f = new FormData();
-      f.append('add_to_cart', KIT);
-      f.append('kit_selections', JSON.stringify([{ kit_component_id: COMP, variant_id: TARJ_V, quantity: 3 }]));
-      f.append('quantity', String(packs));
-      return post('/comprar/', f);
-    }).then(function () {
-      ss(K_MSG, packs + '|' + Date.now()); ss(K_BUSY, null);
-      if (/^\/comprar\/?$/.test(location.pathname)) location.reload(); else location.href = '/comprar/';
+      if (!enCarrito && window.msCarrito) {
+        // Agrega el pack con la función del tema y abre el carrito lateral con el aviso adentro.
+        ss(K_MSG, packs + '|' + Date.now());
+        return window.msCarrito([kit]).then(function () { ss(K_BUSY, null); aviso(); });
+      }
+      var f = new FormData(); kit.forEach(function (x) { f.append(x[0], x[1]); });
+      return post('/comprar/', f).then(function () {
+        ss(K_MSG, packs + '|' + Date.now()); ss(K_BUSY, null);
+        if (enCarrito) location.reload(); else location.href = '/comprar/';
+      });
     });
   }
 

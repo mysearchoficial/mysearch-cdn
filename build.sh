@@ -3,7 +3,7 @@
 cd "$(dirname "$0")"
 {
   echo "/* My Search · ms.js — generado por build.sh, no editar a mano. */"
-  for f in bf-timer.js combo-os.js kit-bf.js pack3-tarjeta.js autopack-tarjeta.js transf-carrito.js barra-compra.js videos-arriba.js; do
+  for f in bf-timer.js combo-os.js carrito-lateral.js kit-bf.js pack3-tarjeta.js autopack-tarjeta.js transf-carrito.js barra-compra.js videos-arriba.js; do
     echo; echo "/* ---- $f ---- */"; cat "$f"
   done
 } > ms.js
