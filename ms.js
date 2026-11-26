@@ -550,13 +550,37 @@
       headers: json ? { 'Content-Type': 'application/x-www-form-urlencoded' } : undefined }).catch(function () {});
   }
 
+  // El carrito real del servidor: /comprar/ trae "LS.cart = {...}". LS.cart en la página puede quedar
+  // desactualizado después de agregar sin recargar, y con eso se armaban packs de más.
+  function carritoServidor() {
+    return fetch('/comprar/', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (h) {
+      var i = h.indexOf('LS.cart = '); if (i < 0) return null;
+      var s = h.slice(i + 10), prof = 0, str = false, esc = false, fin = -1;
+      for (var k = 0; k < s.length; k++) {
+        var ch = s[k];
+        if (str) { if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') str = false; continue; }
+        if (ch === '"') str = true; else if (ch === '{') prof++; else if (ch === '}') { prof--; if (!prof) { fin = k + 1; break; } }
+      }
+      return fin > 0 ? JSON.parse(s.slice(0, fin)) : null;
+    }).catch(function () { return null; });
+  }
+  function sueltasDe(c) { return (c && c.items || []).filter(function (i) { return +i.product_id === TARJ && !i.is_part_of_kit; }); }
+  function cuantas(l) { return l.reduce(function (s, i) { return s + (+i.quantity || 0); }, 0); }
+
   function revisar() {
     var c = window.LS && LS.cart; if (!c || !c.items) return;
-    var sueltas = c.items.filter(function (i) { return +i.product_id === TARJ && !i.is_part_of_kit; });
-    var q = sueltas.reduce(function (s, i) { return s + (+i.quantity || 0); }, 0);
-    if (q < 3) return;
+    if (cuantas(sueltasDe(c)) < 3) return;
+    // Bloqueo de 15 s (no se libera antes): evita que se dispare dos veces seguidas.
     var b = +ss(K_BUSY) || 0; if (Date.now() - b < 15000) return;
     ss(K_BUSY, String(Date.now()));
+    carritoServidor().then(function (srv) {
+      var sueltas = sueltasDe(srv), q = cuantas(sueltas);
+      if (q < 3) return;
+      convertir(sueltas, q);
+    });
+  }
+
+  function convertir(sueltas, q) {
     var packs = Math.floor(q / 3), resto = q % 3;
     // Deja "resto" en la primera línea suelta y saca las demás.
     var p = Promise.resolve();
@@ -572,11 +596,11 @@
       if (!enCarrito && window.msCarrito) {
         // Agrega el pack con la función del tema y abre el carrito lateral con el aviso adentro.
         ss(K_MSG, packs + '|' + Date.now());
-        return window.msCarrito([kit]).then(function () { ss(K_BUSY, null); aviso(); });
+        return window.msCarrito([kit]).then(function () { aviso(); });
       }
       var f = new FormData(); kit.forEach(function (x) { f.append(x[0], x[1]); });
       return post('/comprar/', f).then(function () {
-        ss(K_MSG, packs + '|' + Date.now()); ss(K_BUSY, null);
+        ss(K_MSG, packs + '|' + Date.now());
         if (enCarrito) location.reload(); else location.href = '/comprar/';
       });
     });
