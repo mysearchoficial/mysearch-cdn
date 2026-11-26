@@ -2,12 +2,14 @@
    de las fichas del Localizador y la Tarjeta. Viene elegido de entrada; con él elegido,
    "Agregar al carrito" carga los productos por separado (3 localizadores, 1 tarjeta y 2 Key Tag negros)
    y lleva al carrito. El precio del kit sale de dos descuentos: el 3x2 de Wigy en localizadores y la
-   promoción de Tiendanube "Black Friday kit" ($39.510 fijos sobre Tarjeta y Key Tag, carrito desde $173.500).
+   promoción de Tiendanube "Black Friday kit" ($39.510 fijos solo sobre la "Tarjeta Localizadora MySearch (Kit Black Friday)", carrito desde $173.500).
    Se muestra solo del 25/11/2026 al 01/12/2026 00:00 (hora Argentina).
    Para verlo fuera de fecha: ?msbf=1 en la URL de la ficha (queda guardado en ese navegador; ?msbf=0 lo apaga). */
 !function () {
   var d = document, H = d.documentElement, IDS = ['334471967', '375874883'];
   var P_LOC = '334471967', P_TARJ = '375874883', P_KT = '334472124';
+  // Tarjeta exclusiva del kit (sin listar): la promo "Black Friday kit" aplica solo a este producto.
+  var P_TARJ_KIT = '383743858';
   var DESDE = Date.parse('2026-11-25T00:00:00-03:00'), HASTA = Date.parse('2026-12-01T00:00:00-03:00');
   var q = location.search.match(/[?&]msbf=([01])/);
   try { if (q) localStorage.setItem('msbf', q[1]); } catch (e) {}
@@ -106,7 +108,7 @@
     var cuenta = {};
     sistemas().forEach(function (os) { cuenta[os] = (cuenta[os] || 0) + 1; });
     var pasos = Object.keys(cuenta).map(function (os) { return [P_LOC, os, cuenta[os]]; })
-      .concat([[P_TARJ, null, 1], [P_KT, 'Negro', 2]]);
+      .concat([[P_TARJ_KIT, null, 1], [P_KT, 'Negro', 2]]);
     var p = Promise.resolve();
     pasos.forEach(function (x) { p = p.then(function () { return sumar(x[0], x[1], x[2]); }); });
     p.then(function () { location.href = '/comprar/'; });
