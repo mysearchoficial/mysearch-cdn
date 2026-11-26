@@ -14,15 +14,15 @@
     '#msbar{position:fixed;left:0;right:0;bottom:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:#faf8f3;border-top:2px solid #13294b;box-shadow:0 -6px 20px rgba(19,41,75,.08);font-family:Inter,sans-serif;box-sizing:border-box}' +
     '#msbar.k{background:#0b0b0c;border-top-color:#E3262F}' +
     '#msbar>div{min-width:0}' +
-    '#msbar small{display:block;font:700 12.5px Inter,sans-serif;color:#13294b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#msbar.k small{color:#fff}' +
-    '#msbar small i{font-style:normal;background:#E3262F;color:#fff;border-radius:4px;padding:2px 6px;font-size:10.5px;letter-spacing:.06em;margin-right:5px}' +
+    '#msbar small{display:block;font:700 12px Inter,sans-serif;color:#13294b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#msbar.k small{color:#fff}' +
+    '#msbar small i{font-style:normal;background:#E3262F;color:#fff;border-radius:4px;padding:2px 5px;font-size:10px;letter-spacing:.04em;margin-right:4px}' +
     '#msbar b{display:flex;align-items:center;gap:7px;margin-top:3px;font:800 20px "Plus Jakarta Sans",Inter,sans-serif;color:#13294b;white-space:nowrap}#msbar.k b{color:#fff}' +
     '#msbar b em{font:800 10px Inter,sans-serif;font-style:normal;background:#cfe05a;color:#13294b;border-radius:999px;padding:3px 7px}#msbar.k b em{background:#E3262F;color:#fff}' +
-    '#msbar a{flex:none;display:flex;align-items:center;height:48px;padding:0 20px;border-radius:14px;background:#13294b;color:#fff;font:700 16px Inter,sans-serif;text-decoration:none;white-space:nowrap}#msbar.k a{background:#E3262F}' +
+    '#msbar a{flex:none;display:flex;align-items:center;height:48px;padding:0 16px;border-radius:14px;background:#13294b;color:#fff;font:700 15px Inter,sans-serif;text-decoration:none;white-space:nowrap}#msbar.k a{background:#E3262F}' +
     'body.overflow-none #msbar{display:none}' +
     'body{padding-bottom:84px}.btn-whatsapp{bottom:96px!important}' +
     '}' +
-    '@media(max-width:374px){#msbar{gap:8px;padding-left:12px;padding-right:12px}#msbar b{font-size:18px}#msbar a{padding:0 14px;font-size:15px}}';
+    '@media(max-width:374px){#msbar{gap:8px;padding-left:12px;padding-right:12px}#msbar b{font-size:18px}#msbar a{padding:0 12px;font-size:14px}}';
   var st = d.createElement('style'); st.id = 'msbar-css'; st.textContent = css; d.head.appendChild(st);
 
   var bar = d.createElement('div'); bar.id = 'msbar';
