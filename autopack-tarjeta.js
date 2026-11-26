@@ -21,7 +21,7 @@
     var el = d.createElement('div');
     el.id = 'ms-autopack';
     el.style.cssText = 'background:#e8f6ee;border:1px solid #1a8e45;color:#0f5c2c;border-radius:12px;padding:12px 14px;margin:0 0 14px;font:600 14px Inter,sans-serif;line-height:1.35';
-    el.textContent = '✔ Armamos tu ' + (n > 1 ? n + ' packs de 3 tarjetas' : 'pack de 3 tarjetas') + ': ahorrás ' + plata(AHORRO * n) + '.';
+    el.textContent = '✔ Armamos ' + (n > 1 ? 'tus ' + n + ' packs de 3 tarjetas' : 'tu pack de 3 tarjetas') + ': ahorrás ' + plata(AHORRO * n) + '.';
     f.parentNode.insertBefore(el, f);
   }
 
