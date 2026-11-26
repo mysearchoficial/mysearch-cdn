@@ -11,16 +11,18 @@
 
   // Aviso en la página del carrito después del cambio.
   function aviso() {
+    // El mensaje queda 20 s: la página del carrito se redibuja al cargar y puede borrar el aviso,
+    // así que se vuelve a poner mientras dure.
     var m = ss(K_MSG); if (!m || !/^\/comprar\/?$/.test(location.pathname)) return;
+    var partes = m.split('|'), n = +partes[0] || 1, ts = +partes[1] || 0;
+    if (Date.now() - ts > 20000) { ss(K_MSG, null); return; }
     var f = d.querySelector('[data-store="cart-form"]') || d.querySelector('#shoppingCartPage') || d.querySelector('main');
     if (!f || d.getElementById('ms-autopack')) return;
-    var n = +m || 1;
     var el = d.createElement('div');
     el.id = 'ms-autopack';
     el.style.cssText = 'background:#e8f6ee;border:1px solid #1a8e45;color:#0f5c2c;border-radius:12px;padding:12px 14px;margin:0 0 14px;font:600 14px Inter,sans-serif;line-height:1.35';
     el.textContent = '✔ Armamos tu ' + (n > 1 ? n + ' packs de 3 tarjetas' : 'pack de 3 tarjetas') + ': ahorrás ' + plata(AHORRO * n) + '.';
     f.parentNode.insertBefore(el, f);
-    ss(K_MSG, null);
   }
 
   function post(url, body, json) {
@@ -49,7 +51,7 @@
       f.append('quantity', String(packs));
       return post('/comprar/', f);
     }).then(function () {
-      ss(K_MSG, String(packs)); ss(K_BUSY, null);
+      ss(K_MSG, packs + '|' + Date.now()); ss(K_BUSY, null);
       if (/^\/comprar\/?$/.test(location.pathname)) location.reload(); else location.href = '/comprar/';
     });
   }
